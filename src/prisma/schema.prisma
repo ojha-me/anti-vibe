@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+  // should be the path relative to the schema.prisma file location
+  output = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id String @unique @default(uuid())
+  firstname String
+  lastname String
+  email String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  password String
+  topics Topic[] // user can have many topics
+  
+  role Role @default(USER)
+  @@map("users")
+}
+
+enum TopicStatus {
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+model Topic {
+  id String @unique @default(uuid())
+  title String // eg. Understand Closures
+  goal String? // eg. Understand how closures work in JavaScript 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  status TopicStatus @default(ACTIVE)
+
+  conversation Conversation? // a convo belongs to a topic
+
+  // multiple topics can have the same user
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete:Cascade )
+  @@map("topics")
+}
+  
+
+  model Conversation {
+  id String @unique @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  topicId String @unique
+  topic Topic @relation(fields: [topicId], references: [id], onDelete:Cascade ) 
+
+  messages Message[] // a conversation can have many messages
+
+  @@map("conversations")
+  }
+
+enum MessageSender {
+  USER
+  AI
+}
+
+model Message {
+@@map("messages")
+  id String @unique @default(uuid())
+  content String
+  createdAt DateTime @default(now())
+
+  conversationId String
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete:Cascade )
+
+  sender MessageSender
+}
+
+
