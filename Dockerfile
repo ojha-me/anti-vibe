@@ -13,16 +13,17 @@ RUN npm install
 COPY . .
 #  --schema=src/prisma/schema.prisma is used because prisma is inside /src of the Prisma schema file
 RUN npx prisma generate --schema=src/prisma/schema.prisma
-RUN npm run build
+#
+CMD ["npm", "run", "dev"]
 
 # Production stage
-FROM node:18-alpine
-WORKDIR /app
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/src/prisma ./src/prisma
-EXPOSE 3000
-ENV PORT=3000
-ENV NODE_ENV=production
-CMD ["sh", "-c", "npx prisma migrate deploy --schema=src/prisma/schema.prisma && npm run start"]
+# FROM node:18-alpine
+# WORKDIR /app
+# COPY --from=builder /app/.next ./.next
+# COPY --from=builder /app/node_modules ./node_modules
+# COPY --from=builder /app/package.json ./package.json
+# COPY --from=builder /app/src/prisma ./src/prisma
+# EXPOSE 3000
+# ENV PORT=3000
+# ENV NODE_ENV=production
+# CMD ["sh", "-c", "npx prisma migrate deploy --schema=src/prisma/schema.prisma && npm run start"]
